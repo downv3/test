@@ -1,1 +1,77 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
+# Define the generator and discriminator models
+class Generator(nn.Module):
+    def __init__(self, latent_dim, output_dim):
+        super(Generator, self).__init__()
+        self.fc = nn.Linear(latent_dim, 256)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(256, output_dim)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.relu(self.fc(x))
+        x = self.sigmoid(self.fc2(x))
+        return x
+
+class Discriminator(nn.Module):
+    def __init__(self, input_dim):
+        super(Discriminator, self).__init__()
+        self.fc = nn.Linear(input_dim, 128)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(128, 1)
+        self.sigmoid = nn.Sigmoid()
+    
+    def forward(self, x):
+        x = self.relu(self.fc(x))
+        x = self.sigmoid(self.fc2(x))
+        return x
+
+# Create the generator and discriminator objects
+latent_dim = 100
+output_dim = 784
+generator = Generator(latent_dim, output_dim)
+discriminator = Discriminator(output_dim)
+
+# Define the loss function and optimizer for GAN
+criterion = nn.BCELoss()
+optimizer_G = optim.Adam(generator.parameters(), lr=0.001)
+optimizer_D = optim.Adam(discriminator.parameters(), lr=0.001)
+
+# Prepare the training data (omitted for brevity)
+
+# Train the GAN
+for epoch in range(100):
+    # Train the discriminator
+    real_images = # get real images
+    real_labels = torch.ones(real_images.size(0), 1)
+    fake_images = generator(torch.randn(real_images.size(0), latent_dim))
+    fake_labels = torch.zeros(fake_images.size(0), 1)
+    
+    real_outputs = discriminator(real_images)
+    real_loss = criterion(real_outputs, real_labels)
+    fake_outputs = discriminator(fake_images)
+    fake_loss = criterion(fake_outputs, fake_labels)
+    D_loss = real_loss + fake_loss
+    
+    optimizer_D.zero_grad()
+    D_loss.backward()
+    optimizer_D.step()
+    
+    # Train the generator
+    fake_images = generator(torch.randn(real_images.size(0), latent_dim))
+    fake_outputs = discriminator(fake_images)
+    G_loss = criterion(fake_outputs, real_labels)
+    
+    optimizer_G.zero_grad()
+    G_loss.backward()
+    optimizer_G.step()
+    
+    # Print the training progress
+    if (epoch+1) % 10 == 0:
+        print(f"Epoch {epoch+1}/{100}, Generator Loss: {G_loss.item()}, Discriminator Loss: {D_loss.item()}")
+
+# Use the trained generator for generating new samples
+generated_images = generator(torch.randn(10, latent_dim))
