@@ -1,0 +1,36 @@
+# Assuming we have a dataset containing document contents
+documents = [
+    "This is the first document.",
+    "This document is the second document.",
+    "And this is the third one.",
+    "Is this the first document?"
+]
+
+# Create a simple search engine class
+class SearchEngine:
+    def __init__(self, documents):
+        self.documents = documents
+
+    def search(self, query):
+        results = []
+        for i, doc in enumerate(self.documents):
+            if query in doc:
+                results.append(i)
+        return results
+
+# Instantiate the search engine object
+search_engine = SearchEngine(documents)
+
+# Enter the search query
+query = input("Enter your search query: ")
+
+# Perform the search using the search engine
+search_results = search_engine.search(query)
+
+# Print the search results
+if len(search_results) > 0:
+    print("Search Results:")
+    for result in search_results:
+        print(f"Document {result + 1}: {documents[result]}")
+else:
+    print("No matching documents found.")
